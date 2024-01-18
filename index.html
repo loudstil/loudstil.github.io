@@ -25,6 +25,7 @@
 
         // Fetch GitHub repositories using the extracted username
         const username = getUsernameFromUrl();
+        console.log(username)
         const apiUrl = `https://api.github.com/users/${username}/repos`;
 
         fetch(apiUrl)
