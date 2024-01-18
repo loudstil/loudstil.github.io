@@ -18,9 +18,9 @@
     <script>
         // Function to extract username from GitHub URL
         function getUsernameFromUrl() {
-            const urlParts = window.location.pathname.split('/');
-            const usernameIndex = urlParts.indexOf('users') + 1;
-            return urlParts[usernameIndex];
+            const urlParts = window.location.href.split('/');
+            const usernameIndex = urlParts[2].split('.')
+            return usernameIndex[0]
         }
 
         // Fetch GitHub repositories using the extracted username
