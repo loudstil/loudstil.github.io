@@ -5,40 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Your GitHub Repositories</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
-        }
-
-        header {
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            padding: 1em;
-        }
-
-        #repos-container {
-            max-width: 800px;
-            margin: 2em auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            padding: 20px;
-        }
-
-        .repo-card {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 1em;
-        }
-
-        a {
-            text-decoration: none;
-            color: #0366d6;
-        }
+        /* Your styles here */
     </style>
 </head>
 <body>
@@ -49,8 +16,15 @@
     <div id="repos-container"></div>
 
     <script>
-        // Fetch your GitHub repositories using the GitHub API
-        const username = "your-username"; // Replace with your GitHub username
+        // Function to extract username from GitHub URL
+        function getUsernameFromUrl() {
+            const urlParts = window.location.pathname.split('/');
+            const usernameIndex = urlParts.indexOf('users') + 1;
+            return urlParts[usernameIndex];
+        }
+
+        // Fetch GitHub repositories using the extracted username
+        const username = getUsernameFromUrl();
         const apiUrl = `https://api.github.com/users/${username}/repos`;
 
         fetch(apiUrl)
