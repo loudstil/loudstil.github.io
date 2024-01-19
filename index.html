@@ -3,82 +3,96 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your GitHub Repositories</title>
+    <title>My GitHub Repositories</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f4f4f4;
+            margin: 20px;
         }
 
         header {
-            background-color: #333;
-            color: #fff;
             text-align: center;
-            padding: 1em;
+            margin-bottom: 20px;
         }
 
         #repos-container {
-            max-width: 800px;
-            margin: 2em auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-around;
         }
 
         .repo-card {
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            padding: 1em;
+            width: 300px;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-align: center;
         }
 
-        a {
-            text-decoration: none;
-            color: #0366d6;
+        #loginStatus {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Your GitHub Repositories</h1>
+        <h1>My GitHub Repositories</h1>
     </header>
+
+    <div id="loginStatus"></div>
 
     <div id="repos-container"></div>
 
     <script>
-        // Function to extract username from GitHub URL
-        function getUsernameFromUrl() {
-            const urlParts = window.location.href.split('/');
-            const usernameIndex = urlParts[2].split('.')
-            return usernameIndex[0]
+        // Function to check if the user is logged in
+        function checkGitHubLoginStatus() {
+            fetch('https://api.github.com/user')
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error('Not logged in');
+                    }
+                })
+                .then(userData => {
+                    document.getElementById('loginStatus').innerHTML = `Logged in as ${userData.login}`;
+                })
+                .catch(error => {
+                    document.getElementById('loginStatus').innerHTML = 'Not logged in';
+                });
         }
 
-        // Fetch GitHub repositories using the extracted username
-        const username = getUsernameFromUrl();
-        const apiUrl = `https://api.github.com/users/${username}/repos`;
+        // Check login status when the page loads
+        checkGitHubLoginStatus();
 
-        fetch(apiUrl)
-            .then(response => response.json())
-            .then(repos => {
-                const reposContainer = document.getElementById('repos-container');
+        // Function to fetch and display GitHub repositories
+        function fetchGitHubRepos() {
+            const apiUrl = 'https://api.github.com/user/repos';
 
-                repos.forEach(repo => {
-                    const repoCard = document.createElement('div');
-                    repoCard.className = 'repo-card';
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(repos => {
+                    const reposContainer = document.getElementById('repos-container');
 
-                    const repoLink = document.createElement('a');
-                    repoLink.href = repo.html_url;
-                    repoLink.target = '_blank';
-                    repoLink.textContent = repo.name;
+                    repos.forEach(repo => {
+                        const repoCard = document.createElement('div');
+                        repoCard.className = 'repo-card';
 
-                    repoCard.appendChild(repoLink);
-                    reposContainer.appendChild(repoCard);
-                });
-            })
-            .catch(error => console.error('Error fetching GitHub repositories:', error));
+                        const repoLink = document.createElement('a');
+                        repoLink.href = repo.html_url;
+                        repoLink.target = '_blank';
+                        repoLink.textContent = repo.name;
+
+                        repoCard.appendChild(repoLink);
+                        reposContainer.appendChild(repoCard);
+                    });
+                })
+                .catch(error => console.error('Error fetching GitHub repositories:', error));
+        }
+
+        // Fetch and display GitHub repositories when the page loads
+        fetchGitHubRepos();
     </script>
 </body>
 </html>
