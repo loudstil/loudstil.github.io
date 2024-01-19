@@ -33,6 +33,12 @@
         #loginStatus {
             margin-top: 20px;
         }
+
+        #octocat-img {
+            width: 100px;
+            height: 100px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
@@ -44,10 +50,12 @@
 
     <div id="repos-container"></div>
 
+    <img src="https://octodex.github.com/images/daftpunktocat-thomas.gif" alt="Octocat" id="octocat-img" style="display: none;">
+
     <script>
         // Function to check if the user is logged in
         function checkGitHubLoginStatus() {
-            fetch('https://api.github.com/user')
+            return fetch('https://api.github.com/user')
                 .then(response => {
                     if (response.ok) {
                         return response.json();
@@ -57,14 +65,23 @@
                 })
                 .then(userData => {
                     document.getElementById('loginStatus').innerHTML = `Logged in as ${userData.login}`;
+                    return true; // User is logged in
                 })
                 .catch(error => {
                     document.getElementById('loginStatus').innerHTML = 'Not logged in';
+                    document.getElementById('octocat-img').style.display = 'block'; // Show Octocat image
+                    return false; // User is not logged in
                 });
         }
 
         // Check login status when the page loads
-        checkGitHubLoginStatus();
+        checkGitHubLoginStatus()
+            .then(isLoggedIn => {
+                // Fetch and display GitHub repositories only if the user is logged in
+                if (isLoggedIn) {
+                    fetchGitHubRepos();
+                }
+            });
 
         // Function to fetch and display GitHub repositories
         function fetchGitHubRepos() {
@@ -90,9 +107,6 @@
                 })
                 .catch(error => console.error('Error fetching GitHub repositories:', error));
         }
-
-        // Fetch and display GitHub repositories when the page loads
-        fetchGitHubRepos();
     </script>
 </body>
 </html>
