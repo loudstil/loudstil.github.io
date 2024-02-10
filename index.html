@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GitHub Repositories</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Your GitHub Repositories</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
         }
 
         header {
@@ -18,110 +19,66 @@
             padding: 1em;
         }
 
-        #login-container {
-            text-align: center;
-            margin-top: 50px;
-        }
-
-        #login-status {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-
-        #octocat-img {
-            width: 100px;
-            height: 100px;
-            margin-top: 20px;
-            display: none;
-        }
-
-        #login-btn {
-            margin-top: 20px;
-        }
-
         #repos-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-around;
+            max-width: 800px;
+            margin: 2em auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
         }
 
         .repo-card {
-            width: 300px;
-            margin: 10px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            text-align: center;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 1em;
+        }
+
+        a {
+            text-decoration: none;
+            color: #0366d6;
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>GitHub Repositories</h1>
+        <h1>Your GitHub Repositories</h1>
     </header>
 
-    <div id="login-container">
-        <div id="login-status" class="d-none">User is not logged in</div>
-
-        <img src="https://octodex.github.com/images/daftpunktocat-thomas.gif" alt="Octocat" id="octocat-img">
-
-        <a href="https://github.com/login/oauth/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=https://your-redirect-uri.com/callback&scope=user" class="btn btn-dark" id="login-btn">
-            Login with GitHub
-        </a>
-
-        <div id="repos-container"></div>
-    </div>
+    <div id="repos-container"></div>
 
     <script>
-        // Check if the user is logged in and update UI
-        function checkGitHubLoginStatus() {
-            fetch('https://api.github.com/user')
-                .then(response => {
-                    if (response.ok) {
-                        document.getElementById('login-status').classList.add('d-none');
-                        document.getElementById('octocat-img').style.display = 'none';
-                        fetchGitHubRepos(); // Fetch and display repositories if the user is logged in
-                    } else {
-                        document.getElementById('login-status').classList.remove('d-none');
-                        document.getElementById('octocat-img').style.display = 'block';
-                    }
+        // Function to extract username from GitHub URL
+        function getUsernameFromUrl() {
+            const urlParts = window.location.href.split('/');
+            const usernameIndex = urlParts[2].split('.')
+            return usernameIndex[0]
+        }
+
+        // Fetch GitHub repositories using the extracted username
+        const username = getUsernameFromUrl();
+        const apiUrl = `https://api.github.com/users/${username}/repos`;
+
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(repos => {
+                const reposContainer = document.getElementById('repos-container');
+
+                repos.forEach(repo => {
+                    const repoCard = document.createElement('div');
+                    repoCard.className = 'repo-card';
+
+                    const repoLink = document.createElement('a');
+                    repoLink.href = repo.html_url;
+                    repoLink.target = '_blank';
+                    repoLink.textContent = repo.name;
+
+                    repoCard.appendChild(repoLink);
+                    reposContainer.appendChild(repoCard);
                 });
-        }
-
-        // Check login status when the page loads
-        checkGitHubLoginStatus();
-
-        // Function to fetch and display GitHub repositories
-        function fetchGitHubRepos() {
-            const apiUrl = 'https://api.github.com/user/repos';
-
-            fetch(apiUrl)
-                .then(response => response.json())
-                .then(repos => {
-                    const reposContainer = document.getElementById('repos-container');
-
-                    repos.forEach(repo => {
-                        const repoCard = document.createElement('div');
-                        repoCard.className = 'repo-card';
-
-                        const repoLink = document.createElement('a');
-                        repoLink.href = repo.html_url;
-                        repoLink.target = '_blank';
-                        repoLink.textContent = repo.name;
-
-                        repoCard.appendChild(repoLink);
-                        reposContainer.appendChild(repoCard);
-                    });
-                })
-                .catch(error => console.error('Error fetching GitHub repositories:', error));
-        }
+            })
+            .catch(error => console.error('Error fetching GitHub repositories:', error));
     </script>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
 </body>
 </html>
